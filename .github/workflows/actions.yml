@@ -1,0 +1,29 @@
+name: jacobci
+on:
+  push:
+    branches:
+      - main
+      - feature-branch
+      
+jobs:
+  dev:
+    if: github.ref == 'refs/heads/feature-branch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: dev
+        run: |
+          echo "${{secrets.CITWODEV }}" | docker login -u "santosch" --password-stdin
+          docker image build -t santosch/citwodev:v${{ github.run_number }} .
+          docker push santosch/citwodev:v${{ github.run_number }}
+          
+  prod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: prod
+        run: |
+         echo "${{secrets.JACOBCIPROD }}" | docker login -u "santosch" --password-stdin
+         docker image build -t santosch/jacobciprod:v${{ github.run_number }} .
+         docker push santosch/jacobciprod:v${{ github.run_number }}
